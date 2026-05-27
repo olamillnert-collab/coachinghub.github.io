@@ -124,7 +124,7 @@ const cache = {
 
 /* ─── API LAYER ────────────────────────────────────────────────────────── */
 const api = {
-  url: () => 'localStorage.getItem('scriptUrl') || 'https://script.google.com/macros/s/AKfycbxakJhnjff_jdvmogqYopLTrUEnzkmr7pJiaCKyBszouQkW4RPuCXSN4gwqBAS8JdHE/exec'',
+  url: () => localStorage.getItem('scriptUrl') || 'https://script.google.com/macros/s/AKfycbxakJhnjff_jdvmogqYopLTrUEnzkmr7pJiaCKyBszouQkW4RPuCXSN4gwqBAS8JdHE/exec',
   async get(action, params = {}) {
     const url = this.url();
     if (!url) throw new Error('No Script URL — go to Settings first.');
