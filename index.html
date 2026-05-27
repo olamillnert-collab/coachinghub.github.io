@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Coaching Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --navy:#1A2B4A; --navy-l:#243d68; --navy-d:#111d33;
+  --orng:#E8671A; --orng-l:#f58040;
+  --cream:#FAF8F4; --stone:#F0EDE8; --mist:#E8E4DE;
+  --ink:#1C1C1E; --muted:#6B6B70; --faint:#A8A8AE;
+  --success:#1E7D4A; --warn:#B45309; --danger:#B91C1C;
+  --radius:12px; --radius-lg:18px;
+  --shadow:0 2px 12px rgba(0,0,0,.08); --shadow-lg:0 8px 32px rgba(0,0,0,.14);
+}
+body { font-family:'DM Sans',sans-serif; background:var(--cream); color:var(--ink); min-height:100vh; }
+h1,h2,h3,h4 { font-family:'DM Serif Display',serif; }
+input,select,textarea {
+  font-family:'DM Sans',sans-serif; font-size:14px; width:100%;
+  border:1.5px solid var(--mist); border-radius:8px; padding:10px 12px;
+  background:#fff; color:var(--ink); outline:none; transition:border .15s,box-shadow .15s;
+}
+input:focus,select:focus,textarea:focus { border-color:var(--navy); box-shadow:0 0 0 3px rgba(26,43,74,.12); }
+button { font-family:'DM Sans',sans-serif; cursor:pointer; border:none; transition:all .15s; }
+::-webkit-scrollbar { width:5px; height:5px; }
+::-webkit-scrollbar-thumb { background:var(--mist); border-radius:4px; }
+.btn { display:inline-flex; align-items:center; justify-content:center; gap:6px;
+  padding:10px 20px; border-radius:9px; font-size:13px; font-weight:600; }
+.btn-primary { background:var(--navy); color:#fff; }
+.btn-primary:hover { background:var(--navy-l); }
+.btn-orng { background:var(--orng); color:#fff; }
+.btn-orng:hover { background:var(--orng-l); }
+.btn-ghost { background:transparent; color:var(--navy); border:1.5px solid var(--mist); }
+.btn-ghost:hover { border-color:var(--navy); background:var(--stone); }
+.btn-danger { background:var(--danger); color:#fff; }
+.btn-sm { padding:6px 13px; font-size:12px; border-radius:7px; }
+.btn-icon { width:34px; height:34px; border-radius:8px; padding:0; }
+.btn:disabled { opacity:.45; cursor:not-allowed; }
+.btn-full { width:100%; }
+.card { background:#fff; border-radius:var(--radius-lg); box-shadow:var(--shadow); padding:18px; }
+.card-sm { padding:12px 14px; }
+.tag { display:inline-block; padding:3px 9px; border-radius:999px; font-size:11px; font-weight:600; }
+.score-ring { width:40px; height:40px; border-radius:8px; font-weight:700; font-size:16px;
+  cursor:pointer; border:2px solid transparent; transition:all .12s; }
+.s0{background:#F0EDE8;color:#A8A8AE;} .s1{background:#FEE2E2;color:#991B1B;}
+.s2{background:#FEF3C7;color:#92400E;} .s3{background:#D1FAE5;color:#065F46;}
+.s4{background:#34D399;color:#fff;}
+.s-active{border-color:var(--navy)!important;transform:scale(1.12);box-shadow:0 0 0 2px var(--navy);}
+.login-bg { min-height:100vh; display:flex; align-items:center; justify-content:center;
+  background:linear-gradient(145deg,var(--navy-d) 0%,var(--navy) 50%,#2a4a7a 100%); padding:20px; }
+.bottom-nav { position:fixed; bottom:0; left:0; right:0; background:#fff;
+  border-top:1px solid var(--mist); display:flex; z-index:40;
+  padding-bottom:env(safe-area-inset-bottom); }
+.nav-btn { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  padding:8px 4px; font-size:10px; font-weight:600; color:var(--faint); background:none;
+  border-top:2px solid transparent; gap:3px; transition:color .15s,border-color .15s; }
+.nav-btn.active { color:var(--orng); border-top-color:var(--orng); }
+.nav-icon { font-size:18px; line-height:1; }
+.app-header { background:var(--navy); color:#fff; padding:14px 16px;
+  position:sticky; top:0; z-index:30; display:flex; align-items:center; justify-content:space-between; }
+.modal-backdrop { position:fixed; inset:0; background:rgba(15,20,35,.6);
+  backdrop-filter:blur(4px); z-index:50; display:flex; align-items:flex-end; justify-content:center; }
+.modal-sheet { background:#fff; border-radius:20px 20px 0 0; width:100%; max-width:600px;
+  max-height:92vh; overflow-y:auto; padding:24px 20px 40px; }
+.modal-handle { width:36px; height:4px; background:var(--mist); border-radius:2px; margin:0 auto 20px; }
+.toast { position:fixed; bottom:80px; left:50%; transform:translateX(-50%);
+  padding:10px 20px; border-radius:999px; color:#fff; font-size:13px;
+  font-weight:600; z-index:60; box-shadow:var(--shadow-lg); white-space:nowrap; }
+.star { font-size:28px; cursor:pointer; transition:transform .1s; line-height:1; }
+.star:hover { transform:scale(1.2); }
+.assess-row { display:flex; align-items:center; gap:10px; padding:10px 0;
+  border-bottom:1px solid var(--stone); }
+.assess-row:last-child { border-bottom:none; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
+.fade-up { animation:fadeUp .2s ease; }
+@keyframes spin { to{transform:rotate(360deg)} }
+
+/* Sync bar — slides in at top of content area */
+.sync-bar { height:3px; background:linear-gradient(90deg,var(--navy),var(--orng),var(--navy));
+  background-size:200% 100%; animation:syncSlide 1.2s linear infinite; }
+@keyframes syncSlide { 0%{background-position:100% 0} 100%{background-position:-100% 0} }
+
+/* Stale badge on header */
+.stale-dot { width:7px; height:7px; border-radius:50%; background:var(--orng);
+  display:inline-block; margin-left:4px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useCallback, useMemo, useRef } = React;
+
+/* ─── CACHE LAYER ──────────────────────────────────────────────────────────
+   Every data collection lives in localStorage keyed by CACHE_KEYS.
+   Reading always returns cached data immediately. Writing saves to cache
+   AND fires a background API call. The app never waits for network unless
+   it's the very first load (no cache yet).
+────────────────────────────────────────────────────────────────────────── */
+const CACHE_VERSION = 'v3';
+const CACHE_KEYS = {
+  drills:      `ch_${CACHE_VERSION}_drills`,
+  sessions:    `ch_${CACHE_VERSION}_sessions`,
+  assessments: `ch_${CACHE_VERSION}_assessments`,
+  teams:       `ch_${CACHE_VERSION}_teams`,
+  users:       `ch_${CACHE_VERSION}_users`,
+  lastSync:    `ch_${CACHE_VERSION}_lastSync`,
+};
+
+const cache = {
+  read(key)        { try { return JSON.parse(localStorage.getItem(CACHE_KEYS[key]) || 'null'); } catch { return null; } },
+  write(key, data) { try { localStorage.setItem(CACHE_KEYS[key], JSON.stringify(data)); } catch {} },
+  clear()          { Object.values(CACHE_KEYS).forEach(k => localStorage.removeItem(k)); },
+  hasAny()         { return !!localStorage.getItem(CACHE_KEYS.drills); },
+  lastSync()       { const t = localStorage.getItem(CACHE_KEYS.lastSync); return t ? new Date(t) : null; },
+  markSynced()     { localStorage.setItem(CACHE_KEYS.lastSync, new Date().toISOString()); },
+  isStale()        { const t = cache.lastSync(); return !t || (Date.now() - t.getTime()) > 3 * 60 * 1000; }, // 3 min
+};
+
+/* ─── API LAYER ────────────────────────────────────────────────────────── */
+const api = {
+  url: () => localStorage.getItem('scriptUrl') || '',
+  async get(action, params = {}) {
+    const url = this.url();
+    if (!url) throw new Error('No Script URL — go to Settings first.');
+    const qs = Object.entries(params).map(([k,v]) => `${k}=${encodeURIComponent(v)}`).join('&');
+    const res = await fetch(`${url}?action=${action}${qs ? '&' + qs : ''}`);
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    return data;
+  },
+  async post(action, data) {
+    const url = this.url();
+    if (!url) throw new Error('No Script URL — go to Settings first.');
+    const res = await fetch(url, { method: 'POST', body: JSON.stringify({ action, data }) });
+    const result = await res.json();
+    if (result.error) throw new Error(result.error);
+    return result;
+  },
+};
+
+/* ─── DATA HOOK — the heart of the caching system ──────────────────────── */
+function useData() {
+  // Initialise state from cache immediately — zero network wait
+  const [drills,      setDrills]      = useState(() => cache.read('drills')      || []);
+  const [sessions,    setSessions]    = useState(() => cache.read('sessions')    || []);
+  const [assessments, setAssessments] = useState(() => cache.read('assessments') || []);
+  const [teams,       setTeams]       = useState(() => cache.read('teams')       || []);
+  const [users,       setUsers]       = useState(() => cache.read('users')       || []);
+  const [syncing,     setSyncing]     = useState(false);   // background sync indicator
+  const [offline,     setOffline]     = useState(false);
+  const [needsInit,   setNeedsInit]   = useState(!cache.hasAny());
+
+  // Fetch all from network and update cache + state
+  const syncFromNetwork = useCallback(async (silent = false) => {
+    if (!api.url()) return;
+    if (!silent) setSyncing(true);
+    try {
+      const [d, s, a, t, u] = await Promise.all([
+        api.get('getDrills'), api.get('getSessions'),
+        api.get('getAssessments'), api.get('getTeams'), api.get('getUsers'),
+      ]);
+      const safe = v => Array.isArray(v) ? v : [];
+      setDrills(safe(d));      cache.write('drills',      safe(d));
+      setSessions(safe(s));    cache.write('sessions',    safe(s));
+      setAssessments(safe(a)); cache.write('assessments', safe(a));
+      setTeams(safe(t));       cache.write('teams',       safe(t));
+      setUsers(safe(u));       cache.write('users',       safe(u));
+      cache.markSynced();
+      setOffline(false);
+      setNeedsInit(false);
+    } catch (e) {
+      setOffline(true);
+      // Still have cached data — don't wipe it
+    }
+    if (!silent) setSyncing(false);
+  }, []);
+
+  // On mount: if we have cache show it immediately, then refresh in background.
+  // If no cache, do a blocking fetch (first ever load).
+  useEffect(() => {
+    if (cache.hasAny()) {
+      syncFromNetwork(true); // silent background refresh
+    } else {
+      syncFromNetwork(false); // first load — show spinner
+    }
+  }, []);
+
+  // Refresh when window regains focus (coach passes phone to another coach)
+  useEffect(() => {
+    const onFocus = () => { if (cache.isStale()) syncFromNetwork(true); };
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
+  }, [syncFromNetwork]);
+
+  /* Optimistic write helpers — update local state immediately,
+     save to cache, then POST to API in background.
+     No waiting — the UI responds instantly. */
+  const optimisticAdd = useCallback(async (collection, setter, action, data, transform) => {
+    const tempId = `tmp_${Date.now()}`;
+    const tempItem = { ...data, id: tempId, createdAt: new Date().toISOString() };
+    const item = transform ? transform(tempItem) : tempItem;
+
+    setter(prev => {
+      const next = [...prev, item];
+      cache.write(collection, next);
+      return next;
+    });
+
+    try {
+      const result = await api.post(action, data);
+      // Replace temp item with real server ID
+      setter(prev => {
+        const next = prev.map(x => x.id === tempId ? { ...x, id: result.id } : x);
+        cache.write(collection, next);
+        return next;
+      });
+    } catch (e) {
+      // Rollback
+      setter(prev => {
+        const next = prev.filter(x => x.id !== tempId);
+        cache.write(collection, next);
+        return next;
+      });
+      throw e;
+    }
+  }, []);
+
+  const optimisticUpdate = useCallback(async (collection, setter, action, data) => {
+    setter(prev => {
+      const next = prev.map(x => x.id === data.id ? { ...x, ...data } : x);
+      cache.write(collection, next);
+      return next;
+    });
+    try {
+      await api.post(action, data);
+    } catch (e) {
+      await syncFromNetwork(true); // revert by re-syncing
+      throw e;
+    }
+  }, [syncFromNetwork]);
+
+  const optimisticDelete = useCallback(async (collection, setter, action, id) => {
+    setter(prev => {
+      const next = prev.filter(x => x.id !== id);
+      cache.write(collection, next);
+      return next;
+    });
+    try {
+      await api.post(action, { id });
+    } catch (e) {
+      await syncFromNetwork(true);
+      throw e;
+    }
+  }, [syncFromNetwork]);
+
+  return {
+    drills, sessions, assessments, teams, users,
+    syncing, offline, needsInit,
+    syncFromNetwork,
+    // Typed helpers for each collection
+    addDrill:      (data) => optimisticAdd('drills', setDrills, 'addDrill', data,
+                              d => ({ ...d, addedBy: d.addedBy || '' })),
+    updateDrill:   (data) => optimisticUpdate('drills', setDrills, 'updateDrill', data),
+    deleteDrill:   (id)   => optimisticDelete('drills', setDrills, 'deleteDrill', id),
+    addSession:    (data) => optimisticAdd('sessions', setSessions, 'addSession', data),
+    reviewSession: (data) => optimisticUpdate('sessions', setSessions, 'reviewSession', data),
+    addAssessment: (data) => optimisticAdd('assessments', setAssessments, 'addAssessment', data),
+    addTeam:       (data) => optimisticAdd('teams', setTeams, 'addTeam', data),
+    updateTeam:    (data) => optimisticUpdate('teams', setTeams, 'updateTeam', data),
+    deleteTeam:    (id)   => optimisticDelete('teams', setTeams, 'deleteTeam', id),
+    addUser:       (data) => optimisticAdd('users', setUsers, 'addUser', data),
+    updateUser:    (data) => optimisticUpdate('users', setUsers, 'updateUser', data),
+    deleteUser:    (id)   => optimisticDelete('users', setUsers, 'deleteUser', id),
+  };
+}
+
+/* ─── CONSTANTS ────────────────────────────────────────────────────────── */
+const RUBRIC = [
+  { cat:'1. Passing',    color:'#4A7BAB', short:'Passing',
+    fields:['p_mechanics','p_selection','p_receiving'],
+    labels:['Mechanics','Selection & Timing','Receiving'] },
+  { cat:'2. Shooting',   color:'#E8671A', short:'Shooting',
+    fields:['s_layupR','s_layupL','s_catchShoot','s_offDribble'],
+    labels:['Layup — Right','Layup — Left','Catch-and-Shoot','Shot Off Dribble'] },
+  { cat:'3. Ball Handling', color:'#8E44AD', short:'Ball Handling',
+    fields:['bh_basic','bh_pressure','bh_decisions'],
+    labels:['Basic Control','Under Pressure','Decision-Making'] },
+  { cat:'4. Ind. Defense',  color:'#C0392B', short:'Ind. Defense',
+    fields:['id_stance','id_positioning','id_contest'],
+    labels:['Stance & Footwork','On-Ball Positioning','Contesting & Closeout'] },
+  { cat:'5. Transition',    color:'#27AE60', short:'Transition',
+    fields:['tr_defense','tr_offense'],
+    labels:['Transition Defense','Transition Offense'] },
+  { cat:'6. Team Offense',  color:'#1ABC9C', short:'Team Off.',
+    fields:['to_spacing','to_giveGo','to_movement','to_setScreens','to_useScreens','to_decisions'],
+    labels:['Spacing','Give-and-Go','Off-Ball Movement','Setting Screens','Using Screens','Decision-Making'] },
+  { cat:'7. Team Defense',  color:'#2980B9', short:'Team Def.',
+    fields:['td_help','td_communication','td_rotation'],
+    labels:['Help Awareness','Communication','Rotating & Recovering'] },
+  { cat:'8. Rebounding',    color:'#E67E22', short:'Rebounding',
+    fields:['r_offensive','r_defensive'],
+    labels:['Offensive Rebounding','Defensive Rebounding'] },
+  { cat:'9. Physical',      color:'#7F8C8D', short:'Physical',
+    fields:['ph_endurance','ph_explosiveness','ph_strength','ph_coordination'],
+    labels:['Endurance','Explosiveness','Strength & Contact','Coordination'] },
+  { cat:'10. Mental',       color:'#2C3E50', short:'Mental',
+    fields:['m_composure','m_effort','m_coachability','m_leadership'],
+    labels:['Composure','Effort Consistency','Coachability','Leadership'] },
+];
+const ALL_ASS_FIELDS = RUBRIC.flatMap(c => c.fields);
+
+const CATEGORIES = ['Fundamentals','Shooting','Finishing','1v1 Offense','1v1 Defense',
+  'Team Offense','Team Defense','Transition','Decision Making','Conditioning'];
+const CAT_BG = {
+  Fundamentals:'#FEF9E7',Shooting:'#FDEBD0',Finishing:'#FADBD8',
+  '1v1 Offense':'#D6EAF8','1v1 Defense':'#EBF5FB','Team Offense':'#D5F5E3',
+  'Team Defense':'#E8F8F5',Transition:'#F0E6FF','Decision Making':'#FFF0E0',Conditioning:'#F5EEF8',
+};
+
+const SEED_DRILLS = [
+  {name:'Stationary Ball Handling',category:'Fundamentals',duration:'5',players:'1',equipment:'Ball',description:'Stationary sequence: pound, crossover, between legs, behind back. 30s each.',coachingPoints:'Eyes up; fingertip control; low stance',claPrinciple:'Eyes Up Constraint'},
+  {name:'Zig-Zag Dribble',category:'Fundamentals',duration:'8',players:'1',equipment:'Ball+Cones',description:'Cones in zig-zag. Change direction at each cone.',coachingPoints:'Attack the cone; change direction low',claPrinciple:'Attack Space'},
+  {name:'Mikan Drill',category:'Fundamentals',duration:'6',players:'1',equipment:'Ball+Basket',description:'Alternate layups each side, no ball on floor. 60s sets.',coachingPoints:'Soft touch; keep ball high; inside foot',claPrinciple:'Layup Craft'},
+  {name:'Form Shooting',category:'Fundamentals',duration:'8',players:'1-5',equipment:'Balls',description:'Close-range one-hand shooting. BEEF.',coachingPoints:'Release at top; hold follow-through',claPrinciple:'Mechanics First'},
+  {name:'Pivot & Pass Footwork',category:'Fundamentals',duration:'7',players:'2-6',equipment:'Balls',description:'Receive pass, establish pivot, deliver pass.',coachingPoints:'Establish pivot immediately; no travel',claPrinciple:'Take Care of Ball'},
+  {name:'Spot Shooting Circuit',category:'Shooting',duration:'10',players:'2-4',equipment:'Balls',description:'5 spots around arc, 5 shots per spot.',coachingPoints:'Footwork into catch; quick release',claPrinciple:'Volume with Purpose'},
+  {name:'Catch & Shoot Off DHO',category:'Shooting',duration:'8',players:'2-4',equipment:'Balls',description:'DHO action; catch and shoot in rhythm.',coachingPoints:'Step into catch; shoot on the way up',claPrinciple:'Rhythm Shooting'},
+  {name:'Pull-Up Jumper Series',category:'Shooting',duration:'8',players:'1-2',equipment:'Ball',description:'Drive and pull up at different depths.',coachingPoints:'Low to high gather; balance on landing',claPrinciple:'Create Your Shot'},
+  {name:'Free Throw Routine',category:'Shooting',duration:'5',players:'1-5',equipment:'Balls',description:'20 FTs per player with defined pre-shot routine.',coachingPoints:'Same routine every time; hold follow-through',claPrinciple:'Routine = Confidence'},
+  {name:'Euro Step Layup',category:'Finishing',duration:'7',players:'1-3',equipment:'Ball+Basket',description:'Drive, plant and step across to avoid defender.',coachingPoints:'Long first step; protect ball',claPrinciple:'Create Contact Angle'},
+  {name:'Floater Series',category:'Finishing',duration:'8',players:'1-2',equipment:'Ball+Basket',description:'Drive into paint, release floater.',coachingPoints:'Release early; high arc; both hands',claPrinciple:'Read the Rim'},
+  {name:'Finishing Through Contact',category:'Finishing',duration:'7',players:'2-4',equipment:'Ball+Basket',description:'Absorb light contact from pad holder, finish.',coachingPoints:'Stay strong; eyes on target',claPrinciple:'Mental Toughness'},
+  {name:'Elbow Drive Series',category:'1v1 Offense',duration:'8',players:'1-2',equipment:'Ball',description:'Receive at elbow; drive, pull-up, or kick-out.',coachingPoints:'Triple threat; attack off catch',claPrinciple:'Read Then Act'},
+  {name:'Wing 1v1 Live',category:'1v1 Offense',duration:'10',players:'2-8',equipment:'Ball',description:'Live 1v1 from wing. Max 2 dribbles.',coachingPoints:'Use jab step; attack the gap',claPrinciple:'2-Dribble Constraint'},
+  {name:'Defensive Slide Footwork',category:'1v1 Defense',duration:'6',players:'2-12',equipment:'None',description:'Mirror slides on whistle.',coachingPoints:'Stay low; no crossing feet; active hands',claPrinciple:'Stay Connected'},
+  {name:'Wing 1v1 Defense',category:'1v1 Defense',duration:'8',players:'2-8',equipment:'Ball',description:'Defend wing 1v1. Force baseline.',coachingPoints:'Force baseline; shoulder on hip',claPrinciple:'Force Baseline'},
+  {name:'Close-Out & Contest',category:'1v1 Defense',duration:'7',players:'2-6',equipment:'Ball',description:'Sprint close-out; contest shot.',coachingPoints:'Sprint then chop; high hand',claPrinciple:'Sprint Then Brake'},
+  {name:'Motion Offense 5v0',category:'Team Offense',duration:'12',players:'5',equipment:'Ball',description:'5-out motion: spacing, basket cuts, back-door.',coachingPoints:'15-ft spacing; read cutter',claPrinciple:'Space & Cut'},
+  {name:'Pick & Roll Read',category:'Team Offense',duration:'10',players:'2-4',equipment:'Ball',description:'P&R reads: corner, pull-up, reject.',coachingPoints:'Use the screen; roll hard; read early',claPrinciple:'Use Advantages'},
+  {name:'3-Man Weave',category:'Team Offense',duration:'8',players:'3-9',equipment:'Balls',description:'3 lines, pass and follow. Finish with layup.',coachingPoints:'Lead the receiver; cut behind',claPrinciple:'Ball Movement'},
+  {name:'Shell Drill 4v4',category:'Team Defense',duration:'12',players:'8',equipment:'Ball',description:'4v4 motion, defenders rotate and communicate.',coachingPoints:'Constant talk; call screens; rotate',claPrinciple:'Connected Defense'},
+  {name:'Help & Recover',category:'Team Defense',duration:'10',players:'3',equipment:'Ball',description:'Guard on ball; helper closes out on reversal.',coachingPoints:'Pistols stance; sprint close-out',claPrinciple:'Help Then Recover'},
+  {name:'3-Man Fast Break',category:'Transition',duration:'8',players:'3-9',equipment:'Balls',description:'Sprint full court, finish with layup.',coachingPoints:'Push pace; call for ball',claPrinciple:'Compete'},
+  {name:'2v1 / 3v2 Continuous',category:'Transition',duration:'10',players:'5',equipment:'Ball',description:'Continuous numbers drill.',coachingPoints:'Push on advantage; communicate',claPrinciple:'Numbers Advantage'},
+  {name:'2v2 Read Drill',category:'Decision Making',duration:'10',players:'4-8',equipment:'Ball',description:'Coach calls freeze — offense articulates read.',coachingPoints:'Name what you saw; read help first',claPrinciple:'Verbalize the Read'},
+  {name:'3v3 with Constraint',category:'Decision Making',duration:'10',players:'6-12',equipment:'Ball',description:'Live 3v3 with constraint (pass before shoot).',coachingPoints:'Constraint forces decision speed',claPrinciple:'Constraint Learning'},
+  {name:'End of Quarter Plays',category:'Decision Making',duration:'10',players:'5',equipment:'Ball',description:'Last-possession scenarios.',coachingPoints:'Know play before inbounding',claPrinciple:'Execute Under Pressure'},
+  {name:'17s',category:'Conditioning',duration:'5',players:'1-10',equipment:'None',description:'Sideline-to-sideline 17 times under 60 seconds.',coachingPoints:'Pace first 10; don\'t decelerate',claPrinciple:'Match Effort'},
+  {name:'Skill Conditioning Circuit',category:'Conditioning',duration:'10',players:'3-5',equipment:'Ball',description:'Non-stop ball-screen actions for 3 min.',coachingPoints:'Skill does not degrade under fatigue',claPrinciple:'Quality Under Fatigue'},
+];
+
+const teamColor = i => ['#1A2B4A','#E8671A','#27AE60','#8E44AD','#C0392B'][i % 5];
+const avgColor  = v => { const n = parseFloat(v); if (!n) return 'var(--faint)'; if (n<1.8) return '#B91C1C'; if (n<2.5) return '#B45309'; if (n<3.3) return '#1E7D4A'; return '#166534'; };
+
+/* ─── SMALL SHARED UI ──────────────────────────────────────────────────── */
+const Spinner = () => <div style={{display:'flex',justifyContent:'center',padding:'60px 0'}}><div style={{width:32,height:32,border:'3px solid var(--mist)',borderTopColor:'var(--orng)',borderRadius:'50%',animation:'spin .7s linear infinite'}}/></div>;
+
+const Toast = ({ msg, type, onClose }) => {
+  useEffect(() => { const t = setTimeout(onClose, 3000); return () => clearTimeout(t); }, []);
+  return <div className="toast fade-up" style={{background:type==='error'?'var(--danger)':'var(--success)'}}>{type==='error'?'⚠ ':'✓ '}{msg}</div>;
+};
+
+const Modal = ({ onClose, children, title }) => (
+  <div className="modal-backdrop" onClick={e => e.target===e.currentTarget && onClose()}>
+    <div className="modal-sheet fade-up">
+      <div className="modal-handle"/>
+      {title && <h3 style={{fontFamily:'DM Serif Display',fontSize:22,color:'var(--navy)',marginBottom:18}}>{title}</h3>}
+      {children}
+    </div>
+  </div>
+);
+
+const Field = ({ label, children, hint }) => (
+  <div style={{marginBottom:14}}>
+    <label style={{display:'block',fontSize:11,fontWeight:700,color:'var(--muted)',textTransform:'uppercase',letterSpacing:.6,marginBottom:5}}>{label}</label>
+    {children}
+    {hint && <p style={{fontSize:11,color:'var(--faint)',marginTop:3}}>{hint}</p>}
+  </div>
+);
+
+const Stars = ({ value, onChange }) => (
+  <div style={{display:'flex',gap:6}}>
+    {[1,2,3,4,5].map(n => (
+      <span key={n} className="star" style={{color:n<=value?'#E8671A':'#E0DDD8'}}
+        onClick={() => onChange(n===value?0:n)}>★</span>
+    ))}
+  </div>
+);
+
+const PillFilter = ({ options, value, onChange, colorFn }) => (
+  <div style={{display:'flex',gap:5,overflowX:'auto',paddingBottom:6,marginBottom:8}}>
+    {options.map((o,i) => {
+      const active = (typeof o === 'string' ? o : o.id) === value;
+      const label  = typeof o === 'string' ? o : o.label;
+      const id     = typeof o === 'string' ? o : o.id;
+      const bg     = active ? (colorFn ? colorFn(i-1) : 'var(--navy)') : 'var(--stone)';
+      return (
+        <button key={id} onClick={() => onChange(id)}
+          style={{padding:'5px 12px',borderRadius:999,fontSize:11,fontWeight:700,border:'none',
+            whiteSpace:'nowrap',background:bg,color:active?'#fff':'var(--muted)',transition:'all .15s'}}>
+          {label}
+        </button>
+      );
+    })}
+  </div>
+);
+
+/* ─── OFFLINE BANNER ───────────────────────────────────────────────────── */
+const OfflineBanner = () => (
+  <div style={{background:'#FEF3C7',borderBottom:'1px solid #FDE68A',padding:'8px 16px',
+    display:'flex',alignItems:'center',gap:8,fontSize:12,color:'#92400E'}}>
+    <span>⚡</span>
+    <span>Working from cache — changes will sync when reconnected</span>
+  </div>
+);
+
+/* ─── LOGIN ────────────────────────────────────────────────────────────── */
+const Login = ({ onLogin, showToast }) => {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading,  setLoading]  = useState(false);
+  const submit = async () => {
+    if (!username || !password) return showToast('Enter username and password','error');
+    if (!api.url()) return showToast('No Script URL — ask your admin','error');
+    setLoading(true);
+    try { const r = await api.get('login',{u:username,p:password}); onLogin(r.user); }
+    catch(e) { showToast(e.message,'error'); }
+    setLoading(false);
+  };
+  return (
+    <div className="login-bg">
+      <div style={{width:'100%',maxWidth:380}}>
+        <div style={{textAlign:'center',marginBottom:36}}>
+          <div style={{fontSize:52,marginBottom:8}}>🏀</div>
+          <h1 style={{fontFamily:'DM Serif Display',color:'#fff',fontSize:32,marginBottom:4}}>Coaching Hub</h1>
+          <p style={{color:'rgba(255,255,255,.55)',fontSize:14}}>Sign in to your account</p>
+        </div>
+        <div style={{background:'rgba(255,255,255,.07)',borderRadius:18,padding:24,backdropFilter:'blur(10px)',border:'1px solid rgba(255,255,255,.12)'}}>
+          <Field label="Username">
+            <input value={username} onChange={e=>setUsername(e.target.value)} placeholder="your username"
+              style={{background:'rgba(255,255,255,.1)',border:'1.5px solid rgba(255,255,255,.2)',color:'#fff'}}
+              onKeyDown={e=>e.key==='Enter'&&submit()}/>
+          </Field>
+          <Field label="Password">
+            <input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="••••••••"
+              style={{background:'rgba(255,255,255,.1)',border:'1.5px solid rgba(255,255,255,.2)',color:'#fff'}}
+              onKeyDown={e=>e.key==='Enter'&&submit()}/>
+          </Field>
+          <button className="btn btn-orng btn-full" onClick={submit} disabled={loading} style={{marginTop:8}}>
+            {loading?'Signing in…':'Sign In'}
+          </button>
+        </div>
+        <p style={{color:'rgba(255,255,255,.3)',fontSize:11,textAlign:'center',marginTop:16}}>Contact your admin to get an account</p>
+      </div>
+    </div>
+  );
+};
+
+/* ─── DRILL LIBRARY ────────────────────────────────────────────────────── */
+const DrillLibrary = ({ drills, user, data, showToast }) => {
+  const [search, setSearch]  = useState('');
+  const [cat,    setCat]     = useState('All');
+  const [modal,  setModal]   = useState(null);
+
+  const filtered = useMemo(() => drills.filter(d =>
+    (!search || d.name?.toLowerCase().includes(search.toLowerCase()) ||
+                d.coachingPoints?.toLowerCase().includes(search.toLowerCase())) &&
+    (cat==='All' || d.category===cat)
+  ), [drills,search,cat]);
+
+  const save = async (f) => {
+    if (!f.name?.trim()) return showToast('Drill name required','error');
+    try {
+      if (f.id) await data.updateDrill(f);
+      else await data.addDrill({...f, addedBy:user.displayName});
+      setModal(null); showToast(f.id?'Drill updated':'Drill added');
+    } catch(e) { showToast(e.message,'error'); }
+  };
+
+  const del = async (d) => {
+    if (!confirm(`Delete "${d.name}"?`)) return;
+    try { await data.deleteDrill(d.id); showToast('Drill deleted'); }
+    catch(e) { showToast(e.message,'error'); }
+  };
+
+  return (
+    <div style={{padding:'12px 12px 100px'}}>
+      <div style={{display:'flex',gap:8,marginBottom:10}}>
+        <input placeholder="Search drills…" value={search} onChange={e=>setSearch(e.target.value)} style={{flex:1}}/>
+        <button className="btn btn-orng btn-sm" onClick={()=>setModal({})}>+ Add</button>
+      </div>
+      <PillFilter options={['All',...CATEGORIES]} value={cat} onChange={setCat}/>
+      <p style={{fontSize:11,color:'var(--faint)',marginBottom:8}}>{filtered.length} drills</p>
+      <div style={{display:'flex',flexDirection:'column',gap:8}}>
+        {filtered.map(d => (
+          <div key={d.id} className="card card-sm fade-up"
+            style={{borderLeft:`4px solid ${CAT_BG[d.category]?'var(--navy)':'var(--orng)'}`}}>
+            <div style={{display:'flex',justifyContent:'space-between',gap:8}}>
+              <div style={{flex:1,minWidth:0}}>
+                <div style={{display:'flex',alignItems:'center',gap:6,flexWrap:'wrap',marginBottom:4}}>
+                  <span style={{fontWeight:700,color:'var(--navy)',fontSize:14}}>{d.name}</span>
+                  <span className="tag" style={{background:CAT_BG[d.category]||'#eee',color:'var(--ink)',fontSize:10}}>{d.category}</span>
+                  {d.duration&&<span style={{fontSize:11,color:'var(--muted)'}}>⏱ {d.duration}m</span>}
+                  {d.players&&<span style={{fontSize:11,color:'var(--muted)'}}>👥 {d.players}</span>}
+                </div>
+                {d.coachingPoints&&<p style={{fontSize:12,color:'#B45309',fontStyle:'italic'}}>{d.coachingPoints}</p>}
+                {d.claPrinciple&&<p style={{fontSize:11,color:'var(--navy)',fontWeight:600,marginTop:2}}>⚡ {d.claPrinciple}</p>}
+                {d.addedBy&&<p style={{fontSize:10,color:'var(--faint)',marginTop:2}}>by {d.addedBy}</p>}
+              </div>
+              <div style={{display:'flex',gap:4,flexShrink:0}}>
+                <button className="btn btn-ghost btn-icon" onClick={()=>setModal(d)}>✏</button>
+                {user.role==='admin'&&<button className="btn btn-danger btn-icon" onClick={()=>del(d)}>×</button>}
+              </div>
+            </div>
+          </div>
+        ))}
+        {filtered.length===0&&<p style={{textAlign:'center',color:'var(--faint)',padding:'40px 0',fontSize:14}}>No drills found</p>}
+      </div>
+      {modal!==null&&<DrillForm drill={modal.id?modal:null} onSave={save} onClose={()=>setModal(null)}/>}
+    </div>
+  );
+};
+
+const DrillForm = ({ drill, onSave, onClose }) => {
+  const [f,setF] = useState(drill||{name:'',category:'Fundamentals',duration:'',players:'',equipment:'',description:'',coachingPoints:'',claPrinciple:''});
+  const s=(k,v)=>setF(x=>({...x,[k]:v}));
+  return (
+    <Modal onClose={onClose} title={drill?'Edit Drill':'Add Drill'}>
+      <Field label="Drill Name"><input value={f.name} onChange={e=>s('name',e.target.value)}/></Field>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+        <Field label="Category"><select value={f.category} onChange={e=>s('category',e.target.value)}>{CATEGORIES.map(c=><option key={c}>{c}</option>)}</select></Field>
+        <Field label="Duration (min)"><input type="number" value={f.duration} onChange={e=>s('duration',e.target.value)}/></Field>
+        <Field label="Players"><input value={f.players} onChange={e=>s('players',e.target.value)} placeholder="e.g. 2-6"/></Field>
+        <Field label="Equipment"><input value={f.equipment} onChange={e=>s('equipment',e.target.value)}/></Field>
+      </div>
+      <Field label="Description"><textarea rows={2} value={f.description} onChange={e=>s('description',e.target.value)}/></Field>
+      <Field label="Key Coaching Points"><textarea rows={2} value={f.coachingPoints} onChange={e=>s('coachingPoints',e.target.value)}/></Field>
+      <Field label="CLA Principle"><input value={f.claPrinciple} onChange={e=>s('claPrinciple',e.target.value)}/></Field>
+      <div style={{display:'flex',gap:8,marginTop:4}}>
+        <button className="btn btn-primary" style={{flex:1}} onClick={()=>onSave(f)}>{drill?'Save':'Add Drill'}</button>
+        <button className="btn btn-ghost" onClick={onClose}>Cancel</button>
+      </div>
+    </Modal>
+  );
+};
+
+/* ─── PRACTICE BUILDER ─────────────────────────────────────────────────── */
+const PracticeBuilder = ({ drills, teams, currentTeam, user, data, showToast }) => {
+  const today = new Date().toISOString().split('T')[0];
+  const [meta,     setMeta]     = useState({date:today,coach:user.displayName,theme:'',duration:'90',location:''});
+  const [selected, setSelected] = useState([]);
+  const [search,   setSearch]   = useState('');
+  const [cat,      setCat]      = useState('All');
+  const [saving,   setSaving]   = useState(false);
+  const sm = (k,v) => setMeta(m=>({...m,[k]:v}));
+  const total = selected.reduce((s,x)=>s+(parseInt(x.duration)||0),0);
+
+  const filtered = useMemo(()=>drills.filter(d=>
+    (!search||d.name?.toLowerCase().includes(search.toLowerCase()))&&
+    (cat==='All'||d.category===cat)
+  ),[drills,search,cat]);
+
+  const save = async () => {
+    if (!meta.date) return showToast('Set a date','error');
+    if (!currentTeam) return showToast('Select a team first','error');
+    setSaving(true);
+    try {
+      await data.addSession({...meta,teamId:currentTeam.id,drillNames:JSON.stringify(selected.map(x=>x.name))});
+      setSelected([]); showToast('Session saved');
+    } catch(e){showToast(e.message,'error');}
+    setSaving(false);
+  };
+
+  return (
+    <div style={{padding:'12px 12px 100px',display:'flex',flexDirection:'column',gap:12}}>
+      {currentTeam&&(
+        <div style={{display:'flex',alignItems:'center',gap:8,padding:'8px 12px',background:'var(--stone)',borderRadius:10}}>
+          <span style={{fontSize:11,color:'var(--muted)',fontWeight:600}}>Team:</span>
+          <span style={{fontWeight:700,color:'var(--navy)',fontSize:13}}>{currentTeam.name}</span>
+        </div>
+      )}
+      <div className="card">
+        <h3 style={{fontSize:16,color:'var(--navy)',marginBottom:12}}>Session Details</h3>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+          <Field label="Date"><input type="date" value={meta.date} onChange={e=>sm('date',e.target.value)}/></Field>
+          <Field label="Coach"><input value={meta.coach} onChange={e=>sm('coach',e.target.value)}/></Field>
+          <Field label="Duration (min)"><input type="number" value={meta.duration} onChange={e=>sm('duration',e.target.value)}/></Field>
+          <Field label="Location"><input value={meta.location} onChange={e=>sm('location',e.target.value)}/></Field>
+        </div>
+        <Field label="Focus Theme"><input value={meta.theme} onChange={e=>sm('theme',e.target.value)} placeholder="e.g. Defensive intensity…"/></Field>
+      </div>
+      <div className="card">
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
+          <h3 style={{fontSize:16,color:'var(--navy)'}}>Drills ({selected.length})</h3>
+          <span style={{fontSize:13,fontWeight:700,color:'var(--orng)'}}>⏱ {total} min</span>
+        </div>
+        {selected.length===0
+          ?<p style={{fontSize:13,color:'var(--faint)',textAlign:'center',padding:'12px 0'}}>Pick drills below</p>
+          :selected.map((d,i)=>(
+            <div key={d._uid} style={{display:'flex',alignItems:'center',gap:8,padding:'8px 0',borderBottom:'1px solid var(--stone)'}}>
+              <span style={{fontSize:12,fontWeight:700,color:'var(--faint)',width:18}}>{i+1}</span>
+              <div style={{flex:1}}>
+                <span style={{fontWeight:600,fontSize:13}}>{d.name}</span>
+                <span style={{fontSize:11,color:'var(--muted)',marginLeft:8}}>{d.duration}m · {d.category}</span>
+              </div>
+              <button className="btn btn-danger btn-icon" onClick={()=>setSelected(s=>s.filter(x=>x._uid!==d._uid))}>×</button>
+            </div>
+          ))
+        }
+        {selected.length>0&&<button className="btn btn-primary btn-full" style={{marginTop:12}} onClick={save} disabled={saving}>{saving?'Saving…':'💾 Save Session'}</button>}
+      </div>
+      <div className="card">
+        <h3 style={{fontSize:16,color:'var(--navy)',marginBottom:10}}>Add Drills</h3>
+        <input placeholder="Search…" value={search} onChange={e=>setSearch(e.target.value)} style={{marginBottom:8}}/>
+        <PillFilter options={['All',...CATEGORIES]} value={cat} onChange={setCat}/>
+        <div style={{maxHeight:300,overflowY:'auto',display:'flex',flexDirection:'column',gap:2}}>
+          {filtered.map(d=>(
+            <div key={d.id} onClick={()=>setSelected(s=>[...s,{...d,_uid:Date.now()+Math.random()}])}
+              style={{display:'flex',alignItems:'center',gap:10,padding:'8px 10px',borderRadius:8,cursor:'pointer'}}
+              onMouseEnter={e=>e.currentTarget.style.background='var(--stone)'}
+              onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+              <div style={{flex:1}}>
+                <span style={{fontWeight:600,fontSize:13}}>{d.name}</span>
+                <span style={{fontSize:11,color:'var(--muted)',marginLeft:8}}>{d.duration}m</span>
+                {d.coachingPoints&&<p style={{fontSize:11,color:'#B45309',fontStyle:'italic'}}>{d.coachingPoints}</p>}
+              </div>
+              <span style={{color:'var(--orng)',fontWeight:700,fontSize:18}}>+</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ─── SESSION HISTORY ──────────────────────────────────────────────────── */
+const SessionHistory = ({ sessions, teams, currentTeam, user, data, showToast }) => {
+  const [reviewTarget, setReviewTarget] = useState(null);
+  const [teamFilter,   setTeamFilter]   = useState(currentTeam?.id||'all');
+
+  const filtered = useMemo(()=>[...sessions]
+    .filter(s=>teamFilter==='all'||s.teamId===teamFilter)
+    .sort((a,b)=>(b.date||'').localeCompare(a.date||''))
+  ,[sessions,teamFilter]);
+
+  const teamOf  = id => teams.find(t=>t.id===id);
+  const teamIdx = id => teams.findIndex(t=>t.id===id);
+
+  const submitReview = async (session,rating,text) => {
+    try {
+      await data.reviewSession({...session,reviewRating:rating,reviewText:text,reviewedAt:new Date().toISOString()});
+      setReviewTarget(null); showToast('Review saved');
+    } catch(e){showToast(e.message,'error');}
+  };
+
+  const teamOptions = [{id:'all',label:'All Teams'},...teams.map((t,i)=>({id:t.id,label:t.name,_i:i}))];
+
+  return (
+    <div style={{padding:'12px 12px 100px'}}>
+      <PillFilter options={teamOptions} value={teamFilter} onChange={setTeamFilter}
+        colorFn={i => i < 0 ? 'var(--navy)' : teamColor(i)}/>
+      {filtered.length===0
+        ?<p style={{textAlign:'center',color:'var(--faint)',padding:'60px 0',fontSize:14}}>No sessions yet</p>
+        :filtered.map(s=>{
+          const team=teamOf(s.teamId); const ti=teamIdx(s.teamId);
+          const hasReview=!!s.reviewRating;
+          let drillList=[]; try{drillList=JSON.parse(s.drillNames||'[]');}catch{}
+          return (
+            <div key={s.id} className="card fade-up" style={{marginBottom:10,borderLeft:`4px solid ${hasReview?'var(--success)':teamColor(ti)}`}}>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',gap:8}}>
+                <div style={{flex:1}}>
+                  <div style={{display:'flex',alignItems:'center',gap:8,flexWrap:'wrap',marginBottom:4}}>
+                    <span style={{fontWeight:700,color:'var(--navy)',fontSize:15}}>{s.date}</span>
+                    {team&&<span className="tag" style={{background:teamColor(ti),color:'#fff'}}>{team.name}</span>}
+                    {hasReview&&<span style={{fontSize:11,color:'var(--success)',fontWeight:700}}>✓ Reviewed</span>}
+                  </div>
+                  {s.theme&&<p style={{fontSize:13,fontWeight:600,marginBottom:4}}>📋 {s.theme}</p>}
+                  <p style={{fontSize:11,color:'var(--muted)'}}>{s.coach} · {s.duration}min{s.location?' · '+s.location:''}</p>
+                  {drillList.length>0&&<p style={{fontSize:11,color:'var(--muted)',marginTop:4}}>
+                    {drillList.length} drill{drillList.length!==1?'s':''}: {drillList.slice(0,3).join(', ')}{drillList.length>3?` +${drillList.length-3}`:''}
+                  </p>}
+                  {hasReview&&(
+                    <div style={{marginTop:8,padding:'8px 10px',background:'var(--stone)',borderRadius:8}}>
+                      <p style={{fontSize:13,color:'var(--success)',fontWeight:700,marginBottom:2}}>{'★'.repeat(parseInt(s.reviewRating))}{'☆'.repeat(5-parseInt(s.reviewRating))}</p>
+                      {s.reviewText&&<p style={{fontSize:12,fontStyle:'italic'}}>"{s.reviewText}"</p>}
+                    </div>
+                  )}
+                </div>
+                <button className="btn btn-ghost btn-sm" style={{flexShrink:0}} onClick={()=>setReviewTarget(s)}>
+                  {hasReview?'Edit':'Review'}
+                </button>
+              </div>
+            </div>
+          );
+        })
+      }
+      {reviewTarget&&<ReviewModal session={reviewTarget} onSave={submitReview} onClose={()=>setReviewTarget(null)}/>}
+    </div>
+  );
+};
+
+const ReviewModal = ({ session, onSave, onClose }) => {
+  const [rating,setRating]=useState(parseInt(session.reviewRating)||0);
+  const [text,  setText]  =useState(session.reviewText||'');
+  let drillList=[]; try{drillList=JSON.parse(session.drillNames||'[]');}catch{}
+  return (
+    <Modal onClose={onClose} title="Practice Review">
+      <p style={{fontSize:13,color:'var(--muted)',marginBottom:16}}>{session.date} · {session.theme||'No theme'} · {drillList.length} drills</p>
+      <Field label="Overall Rating"><Stars value={rating} onChange={setRating}/></Field>
+      {drillList.length>0&&(
+        <div style={{marginBottom:14}}>
+          <label style={{fontSize:11,fontWeight:700,color:'var(--muted)',textTransform:'uppercase',letterSpacing:.6,display:'block',marginBottom:6}}>Drills Run</label>
+          <div style={{display:'flex',flexWrap:'wrap',gap:5}}>
+            {drillList.map(d=><span key={d} className="tag" style={{background:'var(--stone)',color:'var(--ink)',fontSize:11}}>{d}</span>)}
+          </div>
+        </div>
+      )}
+      <Field label="Review Notes" hint="What worked? What to adjust? Player highlights?">
+        <textarea rows={4} value={text} onChange={e=>setText(e.target.value)} placeholder="Players showed great effort on P&R reads…"/>
+      </Field>
+      <div style={{display:'flex',gap:8}}>
+        <button className="btn btn-primary" style={{flex:1}} onClick={()=>onSave(session,rating,text)} disabled={!rating}>Save Review</button>
+        <button className="btn btn-ghost" onClick={onClose}>Cancel</button>
+      </div>
+    </Modal>
+  );
+};
+
+/* ─── ASSESSMENT ───────────────────────────────────────────────────────── */
+const Assessment = ({ assessments, currentTeam, user, data, showToast }) => {
+  const [view,setView]=useState('entry');
+  const [meta,setMeta]=useState({assessmentDate:new Date().toISOString().split('T')[0],label:'Monthly Assessment',coach:user.displayName,notes:''});
+  const [scores,setScores]=useState({});
+  const sm=(k,v)=>setMeta(m=>({...m,[k]:v}));
+  const setScore=(f,v)=>setScores(s=>({...s,[f]:s[f]===v?0:v}));
+  const catAvg=cat=>{const v=cat.fields.map(f=>scores[f]||0).filter(x=>x>0);return v.length?(v.reduce((a,b)=>a+b)/v.length).toFixed(1):'—';};
+  const overall=()=>{const v=ALL_ASS_FIELDS.map(f=>scores[f]||0).filter(x=>x>0);return v.length?(v.reduce((a,b)=>a+b)/v.length).toFixed(1):'—';};
+  const save=async()=>{
+    if(!ALL_ASS_FIELDS.some(f=>scores[f]>0))return showToast('Enter at least one score','error');
+    if(!currentTeam)return showToast('Select a team first','error');
+    try{await data.addAssessment({...meta,...scores,teamId:currentTeam.id});showToast('Assessment saved');setScores({});}
+    catch(e){showToast(e.message,'error');}
+  };
+  const teamAssessments=useMemo(()=>[...assessments].filter(a=>!currentTeam||a.teamId===currentTeam?.id).reverse(),[assessments,currentTeam]);
+  return (
+    <div style={{padding:'12px 12px 100px'}}>
+      <div style={{display:'flex',gap:8,marginBottom:12}}>
+        {[['entry','📝 Score Entry'],['history',`📊 History (${teamAssessments.length})`]].map(([v,l])=>(
+          <button key={v} className={`btn ${view===v?'btn-primary':'btn-ghost'}`} style={{flex:1}} onClick={()=>setView(v)}>{l}</button>
+        ))}
+      </div>
+      {view==='entry'&&(<>
+        <div className="card" style={{marginBottom:12}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
+            <h3 style={{fontSize:16,color:'var(--navy)'}}>Assessment</h3>
+            <span style={{fontSize:22,fontWeight:700,color:avgColor(overall())}}>{overall()}</span>
+          </div>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+            <Field label="Date"><input type="date" value={meta.assessmentDate} onChange={e=>sm('assessmentDate',e.target.value)}/></Field>
+            <Field label="Coach"><input value={meta.coach} onChange={e=>sm('coach',e.target.value)}/></Field>
+          </div>
+          <Field label="Label"><input value={meta.label} onChange={e=>sm('label',e.target.value)} placeholder="e.g. September Baseline"/></Field>
+        </div>
+        {RUBRIC.map(cat=>(
+          <div key={cat.cat} className="card" style={{marginBottom:10}}>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
+              <h4 style={{fontSize:14,fontWeight:700,color:cat.color}}>{cat.cat}</h4>
+              <span style={{fontSize:14,fontWeight:700,color:avgColor(catAvg(cat))}}>{catAvg(cat)}</span>
+            </div>
+            {cat.labels.map((lbl,i)=>(
+              <div key={lbl} className="assess-row">
+                <span style={{flex:1,fontSize:12}}>{lbl}</span>
+                <div style={{display:'flex',gap:4}}>
+                  {[1,2,3,4].map(v=>(
+                    <button key={v} className={`score-ring s${v}${scores[cat.fields[i]]===v?' s-active':''}`}
+                      onClick={()=>setScore(cat.fields[i],v)}>{v}</button>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        ))}
+        <Field label="Notes"><textarea rows={2} value={meta.notes} onChange={e=>sm('notes',e.target.value)} placeholder="Key observations…"/></Field>
+        <button className="btn btn-primary btn-full" style={{marginTop:4}} onClick={save}>💾 Save Assessment</button>
+      </>)}
+      {view==='history'&&(
+        <div style={{display:'flex',flexDirection:'column',gap:10}}>
+          {teamAssessments.length===0
+            ?<p style={{textAlign:'center',color:'var(--faint)',padding:'60px 0',fontSize:14}}>No assessments yet</p>
+            :teamAssessments.map(a=>{
+              const vals=ALL_ASS_FIELDS.map(f=>parseFloat(a[f])||0).filter(v=>v>0);
+              const avg=vals.length?(vals.reduce((x,y)=>x+y)/vals.length).toFixed(1):'—';
+              return (
+                <div key={a.id} className="card fade-up">
+                  <div style={{display:'flex',justifyContent:'space-between',marginBottom:10}}>
+                    <div>
+                      <p style={{fontWeight:700,color:'var(--navy)',fontSize:15}}>{a.label||'Assessment'}</p>
+                      <p style={{fontSize:11,color:'var(--muted)'}}>{a.assessmentDate} · {a.coach}</p>
+                    </div>
+                    <span style={{fontSize:28,fontWeight:700,color:avgColor(avg)}}>{avg}</span>
+                  </div>
+                  <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'4px 16px'}}>
+                    {RUBRIC.map(cat=>{const vs=cat.fields.map(f=>parseFloat(a[f])||0).filter(v=>v>0);const ca=vs.length?(vs.reduce((x,y)=>x+y)/vs.length).toFixed(1):'—';return(
+                      <div key={cat.cat} style={{display:'flex',justifyContent:'space-between',padding:'3px 0'}}>
+                        <span style={{fontSize:11,color:cat.color,fontWeight:600}}>{cat.short}</span>
+                        <span style={{fontSize:11,fontWeight:700,color:avgColor(ca)}}>{ca}</span>
+                      </div>
+                    );})}
+                  </div>
+                  {a.notes&&<p style={{fontSize:11,color:'var(--muted)',fontStyle:'italic',marginTop:8,borderTop:'1px solid var(--stone)',paddingTop:8}}>"{a.notes}"</p>}
+                </div>
+              );
+            })
+          }
+        </div>
+      )}
+    </div>
+  );
+};
+
+/* ─── SETTINGS ─────────────────────────────────────────────────────────── */
+const Settings = ({ user, teams, users, data, showToast, onLogout }) => {
+  const [url,setUrl]=useState(localStorage.getItem('scriptUrl')||'');
+  const [view,setView]=useState('general');
+  const [teamModal,setTeamModal]=useState(null);
+  const [userModal,setUserModal]=useState(null);
+  const [seeding,setSeeding]=useState(false);
+
+  const initSheets=async()=>{try{await api.get('init');showToast('Sheets initialized');}catch(e){showToast(e.message,'error');}};
+  const seedDrills=async()=>{setSeeding(true);try{for(const d of SEED_DRILLS)await data.addDrill({...d,addedBy:'System'});showToast(`${SEED_DRILLS.length} drills seeded`);}catch(e){showToast(e.message,'error');}setSeeding(false);};
+
+  const saveTeam=async(f)=>{if(!f.name?.trim())return showToast('Team name required','error');try{f.id?await data.updateTeam(f):await data.addTeam(f);setTeamModal(null);showToast(f.id?'Team updated':'Team added');}catch(e){showToast(e.message,'error');}};
+  const saveUser=async(f)=>{if(!f.username?.trim()||(!f.id&&!f.password?.trim()))return showToast('Username and password required','error');try{f.id?await data.updateUser(f):await data.addUser(f);setUserModal(null);showToast(f.id?'User updated':'User added');}catch(e){showToast(e.message,'error');}};
+
+  return (
+    <div style={{padding:'12px 12px 100px',display:'flex',flexDirection:'column',gap:12}}>
+      <div style={{display:'flex',gap:6}}>
+        {[['general','⚙ General'],['teams','🏀 Teams'],user.role==='admin'&&['users','👤 Users']].filter(Boolean).map(([v,l])=>(
+          <button key={v} onClick={()=>setView(v)}
+            style={{flex:1,padding:'8px 4px',borderRadius:8,fontSize:12,fontWeight:700,border:'none',
+              background:view===v?'var(--navy)':'var(--stone)',color:view===v?'#fff':'var(--muted)'}}>
+            {l}
+          </button>
+        ))}
+      </div>
+      {view==='general'&&(<>
+        <div className="card">
+          <p style={{fontWeight:700,color:'var(--navy)',marginBottom:2}}>{user.displayName}</p>
+          <p style={{fontSize:12,color:'var(--muted)',marginBottom:12}}>{user.username} · {user.role}</p>
+          <button className="btn btn-ghost btn-sm" onClick={onLogout}>Sign Out</button>
+        </div>
+        <div className="card" style={{display:'flex',flexDirection:'column',gap:10}}>
+          <h3 style={{fontSize:16,color:'var(--navy)'}}>Google Apps Script URL</h3>
+          <input value={url} onChange={e=>setUrl(e.target.value)} placeholder="https://script.google.com/macros/s/…/exec"/>
+          <button className="btn btn-primary btn-full" onClick={()=>{localStorage.setItem('scriptUrl',url.trim());showToast('URL saved');}}>Save URL</button>
+        </div>
+        {user.role==='admin'&&(
+          <div className="card" style={{display:'flex',flexDirection:'column',gap:8}}>
+            <h3 style={{fontSize:16,color:'var(--navy)'}}>Initial Setup</h3>
+            <button className="btn btn-ghost btn-full" onClick={initSheets}>Step 1 — Initialize Sheets</button>
+            <button className="btn btn-orng btn-full" onClick={seedDrills} disabled={seeding}>{seeding?'Seeding…':`Step 2 — Seed ${SEED_DRILLS.length} Drills`}</button>
+            <p style={{fontSize:11,color:'var(--danger)'}}>⚠ Run Step 2 once only</p>
+          </div>
+        )}
+      </>)}
+      {view==='teams'&&(<>
+        <button className="btn btn-orng btn-full" onClick={()=>setTeamModal({})}>+ Add Team</button>
+        {teams.map((t,i)=>(
+          <div key={t.id} className="card card-sm" style={{borderLeft:`4px solid ${teamColor(i)}`}}>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start'}}>
+              <div>
+                <p style={{fontWeight:700,color:'var(--navy)',fontSize:15}}>{t.name}</p>
+                <p style={{fontSize:11,color:'var(--muted)'}}>{t.ageGroup} · {t.season}</p>
+                {t.description&&<p style={{fontSize:11,color:'var(--muted)',marginTop:2}}>{t.description}</p>}
+              </div>
+              <div style={{display:'flex',gap:4}}>
+                <button className="btn btn-ghost btn-icon" onClick={()=>setTeamModal(t)}>✏</button>
+                {user.role==='admin'&&<button className="btn btn-danger btn-icon" onClick={async()=>{if(!confirm(`Delete "${t.name}"?`))return;try{await data.deleteTeam(t.id);showToast('Team deleted');}catch(e){showToast(e.message,'error');}}}>×</button>}
+              </div>
+            </div>
+          </div>
+        ))}
+        {teams.length===0&&<p style={{textAlign:'center',color:'var(--faint)',padding:'40px 0',fontSize:14}}>No teams yet</p>}
+        {teamModal!==null&&<TeamForm team={teamModal.id?teamModal:null} onSave={saveTeam} onClose={()=>setTeamModal(null)}/>}
+      </>)}
+      {view==='users'&&user.role==='admin'&&(<>
+        <button className="btn btn-orng btn-full" onClick={()=>setUserModal({})}>+ Add User</button>
+        {users.map(u=>(
+          <div key={u.id} className="card card-sm">
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+              <div>
+                <p style={{fontWeight:700,color:'var(--navy)'}}>{u.displayName}</p>
+                <p style={{fontSize:11,color:'var(--muted)'}}>{u.username} · {u.role}</p>
+              </div>
+              <div style={{display:'flex',gap:4}}>
+                <button className="btn btn-ghost btn-icon" onClick={()=>setUserModal(u)}>✏</button>
+                {u.id!==user.id&&<button className="btn btn-danger btn-icon" onClick={async()=>{if(!confirm(`Delete "${u.username}"?`))return;try{await data.deleteUser(u.id);showToast('User deleted');}catch(e){showToast(e.message,'error');}}}>×</button>}
+              </div>
+            </div>
+          </div>
+        ))}
+        {userModal!==null&&<UserForm user={userModal.id?userModal:null} onSave={saveUser} onClose={()=>setUserModal(null)}/>}
+      </>)}
+    </div>
+  );
+};
+
+const TeamForm = ({ team, onSave, onClose }) => {
+  const [f,setF]=useState(team||{name:'',season:'2024-25',ageGroup:'',description:''});
+  const s=(k,v)=>setF(x=>({...x,[k]:v}));
+  return (
+    <Modal onClose={onClose} title={team?'Edit Team':'Add Team'}>
+      <Field label="Team Name"><input value={f.name} onChange={e=>s('name',e.target.value)} placeholder="e.g. U13 Boys"/></Field>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+        <Field label="Season"><input value={f.season} onChange={e=>s('season',e.target.value)}/></Field>
+        <Field label="Age Group"><input value={f.ageGroup} onChange={e=>s('ageGroup',e.target.value)} placeholder="e.g. 2012–13"/></Field>
+      </div>
+      <Field label="Description"><textarea rows={2} value={f.description} onChange={e=>s('description',e.target.value)}/></Field>
+      <div style={{display:'flex',gap:8}}>
+        <button className="btn btn-primary" style={{flex:1}} onClick={()=>onSave(f)}>{team?'Save':'Add'}</button>
+        <button className="btn btn-ghost" onClick={onClose}>Cancel</button>
+      </div>
+    </Modal>
+  );
+};
+
+const UserForm = ({ user, onSave, onClose }) => {
+  const [f,setF]=useState(user||{username:'',password:'',displayName:'',role:'coach'});
+  const s=(k,v)=>setF(x=>({...x,[k]:v}));
+  return (
+    <Modal onClose={onClose} title={user?'Edit User':'Add User'}>
+      <Field label="Display Name"><input value={f.displayName} onChange={e=>s('displayName',e.target.value)}/></Field>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+        <Field label="Username"><input value={f.username} onChange={e=>s('username',e.target.value)} autoCapitalize="none"/></Field>
+        <Field label="Password"><input type="password" value={f.password} onChange={e=>s('password',e.target.value)} placeholder={user?'Leave blank to keep':''}/></Field>
+      </div>
+      <Field label="Role"><select value={f.role} onChange={e=>s('role',e.target.value)}><option value="coach">Coach</option><option value="admin">Admin</option></select></Field>
+      <div style={{display:'flex',gap:8}}>
+        <button className="btn btn-primary" style={{flex:1}} onClick={()=>onSave(f)}>{user?'Save':'Add'}</button>
+        <button className="btn btn-ghost" onClick={onClose}>Cancel</button>
+      </div>
+    </Modal>
+  );
+};
+
+/* ─── APP SHELL ────────────────────────────────────────────────────────── */
+const App = () => {
+  const [user,        setUser]        = useState(()=>{try{return JSON.parse(localStorage.getItem('coachUser')||'null');}catch{return null;}});
+  const [tab,         setTab]         = useState('library');
+  const [currentTeam, setCurrentTeam] = useState(null);
+  const [teamPicker,  setTeamPicker]  = useState(false);
+  const [toast,       setToast]       = useState(null);
+
+  const data = useData();
+  const showToast = (msg, type='success') => setToast({msg,type});
+
+  // Auto-select first team once teams load
+  useEffect(()=>{
+    if(!currentTeam && data.teams.length>0) setCurrentTeam(data.teams[0]);
+  },[data.teams]);
+
+  const login  = u => { setUser(u); localStorage.setItem('coachUser',JSON.stringify(u)); };
+  const logout = () => { setUser(null); localStorage.removeItem('coachUser'); cache.clear(); };
+
+  if (!user) return (<><Login onLogin={login} showToast={showToast}/>{toast&&<Toast {...toast} onClose={()=>setToast(null)}/>}</>);
+
+  const tabs = [{id:'library',icon:'📚',label:'Library'},{id:'practice',icon:'🏀',label:'Practice'},
+    {id:'history',icon:'📋',label:'History'},{id:'assessment',icon:'📊',label:'Assess'},{id:'settings',icon:'⚙',label:'Settings'}];
+  const ti = data.teams.findIndex(t=>t.id===currentTeam?.id);
+
+  const sharedProps = { data, showToast };
+
+  return (
+    <div style={{minHeight:'100vh',background:'var(--cream)'}}>
+      {/* Sync bar */}
+      {data.syncing && <div className="sync-bar"/>}
+
+      {/* Offline banner */}
+      {data.offline && <OfflineBanner/>}
+
+      {/* Header */}
+      <div className="app-header">
+        <div>
+          <h1 style={{fontFamily:'DM Serif Display',fontSize:18,color:'#fff',lineHeight:1.2}}>🏀 Coaching Hub</h1>
+          <p style={{fontSize:10,color:'rgba(255,255,255,.45)',marginTop:1}}>
+            {user.displayName}
+            {cache.lastSync() && <span> · synced {Math.round((Date.now()-cache.lastSync().getTime())/60000)}m ago</span>}
+          </p>
+        </div>
+        <div style={{display:'flex',alignItems:'center',gap:8}}>
+          {currentTeam&&(
+            <button onClick={()=>setTeamPicker(true)}
+              style={{background:teamColor(ti),color:'#fff',border:'none',borderRadius:8,
+                padding:'6px 12px',fontSize:12,fontWeight:700,cursor:'pointer'}}>
+              {currentTeam.name} ▾
+            </button>
+          )}
+          <button onClick={()=>data.syncFromNetwork(false)}
+            style={{background:'transparent',border:'none',color:'rgba(255,255,255,.5)',fontSize:18,cursor:'pointer',lineHeight:1}}>
+            ↻
+          </button>
+        </div>
+      </div>
+
+      {/* Content — note: no blocking spinner; tabs use cached data immediately */}
+      <div style={{paddingBottom:80}}>
+        {tab==='library'    && <DrillLibrary    drills={data.drills} user={user} {...sharedProps}/>}
+        {tab==='practice'   && <PracticeBuilder drills={data.drills} teams={data.teams} currentTeam={currentTeam} user={user} {...sharedProps}/>}
+        {tab==='history'    && <SessionHistory  sessions={data.sessions} teams={data.teams} currentTeam={currentTeam} user={user} {...sharedProps}/>}
+        {tab==='assessment' && <Assessment      assessments={data.assessments} currentTeam={currentTeam} user={user} {...sharedProps}/>}
+        {tab==='settings'   && <Settings        user={user} teams={data.teams} users={data.users} {...sharedProps} onLogout={logout}/>}
+      </div>
+
+      {/* Bottom nav */}
+      <nav className="bottom-nav">
+        {tabs.map(t=>(
+          <button key={t.id} className={`nav-btn${tab===t.id?' active':''}`} onClick={()=>setTab(t.id)}>
+            <span className="nav-icon">{t.icon}</span>{t.label}
+          </button>
+        ))}
+      </nav>
+
+      {/* Team picker */}
+      {teamPicker&&(
+        <Modal onClose={()=>setTeamPicker(false)} title="Select Team">
+          <div style={{display:'flex',flexDirection:'column',gap:8}}>
+            {data.teams.map((t,i)=>(
+              <button key={t.id} onClick={()=>{setCurrentTeam(t);setTeamPicker(false);}}
+                style={{display:'flex',alignItems:'center',gap:10,padding:'10px 14px',borderRadius:10,
+                  border:`2px solid ${currentTeam?.id===t.id?teamColor(i):'var(--mist)'}`,
+                  background:currentTeam?.id===t.id?`${teamColor(i)}12`:'#fff',cursor:'pointer',textAlign:'left'}}>
+                <div style={{width:34,height:34,borderRadius:8,background:teamColor(i),
+                  display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',fontWeight:700,fontSize:14,flexShrink:0}}>
+                  {t.name.substring(0,2).toUpperCase()}
+                </div>
+                <div>
+                  <p style={{fontWeight:700,fontSize:14}}>{t.name}</p>
+                  <p style={{fontSize:11,color:'var(--muted)'}}>{t.ageGroup} · {t.season}</p>
+                </div>
+                {currentTeam?.id===t.id&&<span style={{marginLeft:'auto',color:teamColor(i),fontSize:18}}>✓</span>}
+              </button>
+            ))}
+            {data.teams.length===0&&<p style={{color:'var(--faint)',fontSize:13,textAlign:'center',padding:'20px 0'}}>No teams — add one in Settings</p>}
+          </div>
+        </Modal>
+      )}
+
+      {toast&&<Toast {...toast} onClose={()=>setToast(null)}/>}
+    </div>
+  );
+};
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
